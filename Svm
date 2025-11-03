@@ -1,30 +1,39 @@
-# Step 1: Import libraries
-from sklearn import datasets
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score
+# Import libraries
+import numpy as np
 import matplotlib.pyplot as plt
+from sklearn import datasets
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
-# Step 2: Load dataset (only first 2 features for 2D plot)
+# Step 1: Load Iris dataset
 iris = datasets.load_iris()
-X = iris.data[:100, :2]
+X = iris.data[:100, :2]  # Use 2 features, 2 classes
 y = iris.target[:100]
 
-# Step 3: Split into train and test sets
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.3, random_state=42)
+# Step 2: Split into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-# Step 4: Train SVM model
-model = SVC(kernel='linear')
-model.fit(X_train, y_train)
+# Step 3: Train SVM model
+svm = SVC(kernel='linear', C=1)
+svm.fit(X_train, y_train)
 
-# Step 5: Check accuracy
-y_pred = model.predict(X_test)
-print("SVM Accuracy:", accuracy_score(y_test, y_pred))
+# Step 4: Test and evaluate
+y_pred = svm.predict(X_test)
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("Classification Report:\n", classification_report(y_test, y_pred))
 
-# Step 6: Plot
-plt.scatter(X[:, 0], X[:, 1], c=y, cmap='coolwarm', edgecolors='k')
-plt.title("SVM - Linear Classification (Iris Dataset)")
-plt.xlabel("Sepal Length")
-plt.ylabel("Sepal Width")
+# Step 5: Plot the decision boundary
+w = svm.coef_[0]
+b = svm.intercept_[0]
+x_points = np.linspace(X[:,0].min(), X[:,0].max(), 100)
+y_points = -(w[0]/w[1])*x_points - b/w[1]
+
+plt.scatter(X[:,0], X[:,1], c=y, cmap='coolwarm', edgecolors='k')
+plt.plot(x_points, y_points, 'k--', label="Decision Boundary")
+plt.xlabel('Sepal Length')
+plt.ylabel('Sepal Width')
+plt.title('SVM on Iris Dataset')
+plt.legend()
 plt.show()
